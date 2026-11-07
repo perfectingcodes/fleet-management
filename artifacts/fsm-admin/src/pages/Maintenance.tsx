@@ -10,6 +10,7 @@ import {
   type MaintenanceReceiptCategory,
 } from "@/lib/extra-api";
 import { useDepartmentFilter } from "@/context/DepartmentContext";
+import { AssetPicker } from "@/components/AssetPicker";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -799,25 +800,37 @@ export function MaintenanceFormDialog({ log, trigger, isOpen: controlledIsOpen, 
              
              {formData.assetType === "truck" ? (
                <div className="space-y-2">
-                 <Label>Truck</Label>
-                 <Select value={formData.truckId} onValueChange={(val) => setFormData({ ...formData, truckId: val })}>
-                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                   <SelectContent>
-                     <SelectItem value="none">None</SelectItem>
-                     {trucksData?.trucks?.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
-                   </SelectContent>
-                 </Select>
+                 <Label htmlFor="maint-truck">Truck</Label>
+                 <AssetPicker
+                   id="maint-truck"
+                   data-testid="maint-truck-picker"
+                   value={formData.truckId}
+                   onChange={(val) => setFormData({ ...formData, truckId: val })}
+                   placeholder="Select a truck"
+                   searchPlaceholder="Search trucks by name, tag, VIN, plate…"
+                   options={((trucksData?.trucks ?? []) as unknown as Array<{ id: number; name: string; fleetTag?: string | null; vin?: string | null; plate?: string | null }>).map((t) => ({
+                     id: t.id,
+                     name: t.name,
+                     hint: [t.fleetTag, t.plate, t.vin].filter(Boolean).join(" · ") || null,
+                   }))}
+                 />
                </div>
              ) : (
                <div className="space-y-2">
-                 <Label>Equipment</Label>
-                 <Select value={formData.equipmentId} onValueChange={(val) => setFormData({ ...formData, equipmentId: val })}>
-                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                   <SelectContent>
-                     <SelectItem value="none">None</SelectItem>
-                     {equipmentData?.equipment?.map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>)}
-                   </SelectContent>
-                 </Select>
+                 <Label htmlFor="maint-equipment">Equipment</Label>
+                 <AssetPicker
+                   id="maint-equipment"
+                   data-testid="maint-equipment-picker"
+                   value={formData.equipmentId}
+                   onChange={(val) => setFormData({ ...formData, equipmentId: val })}
+                   placeholder="Select equipment"
+                   searchPlaceholder="Search equipment by name or serial…"
+                   options={((equipmentData?.equipment ?? []) as unknown as Array<{ id: number; name: string; serial?: string | null; type?: string | null }>).map((e) => ({
+                     id: e.id,
+                     name: e.name,
+                     hint: [e.type, e.serial].filter(Boolean).join(" · ") || null,
+                   }))}
+                 />
                </div>
              )}
           </div>
